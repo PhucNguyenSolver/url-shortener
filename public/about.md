@@ -14,6 +14,7 @@ GET shortener/:slug
 
 # Can be improve
 - check URL max length & invalid character
+- handle incorrect mongo password 
 - copy shortened url to clipboard
 - fix makeSlugUrl return correct host:port 
 - generate url-friendly encoding slug
