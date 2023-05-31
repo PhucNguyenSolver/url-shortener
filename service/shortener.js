@@ -7,12 +7,12 @@ function generateRandomSlug() {
   return randomHex(9)
 }
 
-function generateValidSlug() {
+async function generateValidSlug() {
   let retry = 5
   while (retry > 0) {
     retry -= 1
     let slug = generateRandomSlug()
-    if (checkSlugUsed(slug) == false) return slug
+    if ((await checkSlugUsed(slug)) == false) return slug
   }
   throw "Max retries exceeded"
 }
@@ -21,32 +21,32 @@ function makeSlugUrl(slug) {
   return `http://localhost:3000/${slug}`
 }
 
-function checkSlugUsed(slug) {
+async function checkSlugUsed(slug) {
   // TODO: impl
-  return storage.tryGet(slug) != null
+  return (await storage.tryGet(slug)) != null
 }
 
-function saveSlugWithUrl(slug, url) {
+async function saveSlugWithUrl(slug, url) {
   try {
     // TODO: impl
-    storage.set(slug, url)
+    await storage.set(slug, url)
   } catch (e) {
     console.error(e)
     throw "Cannot save slug"
   }
 }
 
-function shorten(url, slug) {
+async function shorten(url, slug) {
   if (!url) return { error: "Url should not be empty" }
-  if (slug && checkSlugUsed(slug)) return { error: "Slug already in used" }
-  if (!slug) slug = generateValidSlug()
-  saveSlugWithUrl(slug, url)
+  if (slug && (await checkSlugUsed(slug))) return { error: "Slug already in used" }
+  if (!slug) slug = await generateValidSlug()
+  await saveSlugWithUrl(slug, url)
   slug = makeSlugUrl(slug)
   return { data: { slug, url } }
 }
 
-function tryGetUrl(slug) {
-  return storage.tryGet(slug)
+async function tryGetUrl(slug) {
+  return await storage.tryGet(slug)
 }
 
 module.exports = {
