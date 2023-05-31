@@ -1,6 +1,7 @@
+const Persist = require("../db/persist")
+
 class Storage {
   constructor() {
-    // TODO: persist database
     this.items = {}
   }
 
@@ -12,7 +13,7 @@ class Storage {
     if (key in this.items) return this.items[key]
     return null
   }
-  
+
   async exist(key) {
     if (key in this.items) return true
     return false
@@ -20,7 +21,8 @@ class Storage {
 }
 
 const storage = new Storage()
+const persist = new Persist()
 
 module.exports = {
-  storage: storage,
+  storage: persist,
 }
