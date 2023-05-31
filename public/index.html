@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>url-shortener</title>
+</head>
+
+<body>
+  <form id="myform">
+    <label for="url">Your URL:</label>
+    <br />
+    <input type="text" id="url" />
+    <br />
+    <label for="slug">Slug (optional):</label>
+    <br />
+    <input type="text" id="slug" />
+    <br />
+    <hr />
+    <input type="submit" value="Shorten" />
+  </form>
+
+  <p id="error" style="color: red"></p>
+
+  <script>
+    const MSG = {
+      SERVER_ERROR: "Sever Error",
+    }
+    
+    form = document.querySelector("#myform")
+    url = document.querySelector("#url")
+    slug = document.querySelector("#slug")
+    error = document.querySelector("#error")
+
+    function notifyError(msg) {
+      error.hidden = false
+      error.innerHTML = msg
+    }
+
+    function notifySuccess(data) {
+      error.hidden = true
+      const { slug, url } = data
+      let msg = `Success! Your url is: ${slug}`
+      console.log(msg)
+      alert(msg)
+    }
+
+    function postJSON(url, data) {
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+      }).then(res => {
+        console.log({res})
+        if (res.status != 200) throw res.statusText || MSG.SERVER_ERROR
+        return res.json()
+      })
+    }
+
+    function mySubmit() {
+      let location = window.location.href
+      let data = {
+        url: url.value,
+        slug: slug.value == "" ? undefined : slug.value,
+      }
+      postJSON(location, data).then(result => {
+        if (result.data) notifySuccess(result.data)
+        else if (result.error) notifyError(result?.error)
+      }).catch(alert)
+    }
+    
+    function onSubmit(e) {
+      if (e.preventDefault) e.preventDefault()
+      mySubmit()
+      return false
+    }
+
+    if (form.attachEvent) {
+      form.attachEvent("submit", onSubmit);
+    } else {
+      form.addEventListener("submit", onSubmit);
+    }
+
+  </script>
+</body>
+
+</html>
