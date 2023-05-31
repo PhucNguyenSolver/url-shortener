@@ -12,37 +12,18 @@ async function generateValidSlug() {
   while (retry > 0) {
     retry -= 1
     let slug = generateRandomSlug()
-    if ((await checkSlugUsed(slug)) == false) return slug
+    if (await storage.exist(slug)) continue
+    else return slug
   }
   throw "Max retries exceeded"
 }
 
-function makeSlugUrl(slug) {
-  return `http://localhost:3000/${slug}`
-}
-
-async function checkSlugUsed(slug) {
-  // TODO: impl
-  return (await storage.tryGet(slug)) != null
-}
-
-async function saveSlugWithUrl(slug, url) {
-  try {
-    // TODO: impl
-    await storage.set(slug, url)
-  } catch (e) {
-    console.error(e)
-    throw "Cannot save slug"
-  }
-}
-
 async function shorten(url, slug) {
   if (!url) return { error: "Url should not be empty" }
-  if (slug && (await checkSlugUsed(slug))) return { error: "Slug already in used" }
+  if (slug && (await storage.exist(slug))) return { error: "Slug already in used" }
   if (!slug) slug = await generateValidSlug()
-  await saveSlugWithUrl(slug, url)
-  slug = makeSlugUrl(slug)
-  return { data: { slug, url } }
+  await storage.set(slug, url)
+  return { data: { slug, url: await storage.tryGet(slug) } }
 }
 
 async function tryGetUrl(slug) {

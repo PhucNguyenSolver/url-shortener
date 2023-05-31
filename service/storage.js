@@ -5,13 +5,17 @@ class Storage {
   }
 
   async set(key, value) {
-    if (key in this.items) throw "Non-unique key: " + key
     this.items[key] = value
   }
 
   async tryGet(key) {
     if (key in this.items) return this.items[key]
     return null
+  }
+  
+  async exist(key) {
+    if (key in this.items) return true
+    return false
   }
 }
 
